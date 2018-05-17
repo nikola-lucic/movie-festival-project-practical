@@ -1,3 +1,4 @@
+"use strict";
 var movies = [];
 var festival = new Festival();
 
@@ -33,14 +34,12 @@ function createMovie() {
     var titleInput = document.querySelector(".movie-title");
     var lengthInput = document.querySelector(".movie-length");
     var genreSelector = document.querySelector(".movie-genre");
-    var moviesSelectElement = document.querySelector('.movie-select');
+    var moviesListElement = document.querySelector('.movie-list');
+    var moviesSelectElement = document.querySelector(".movie-select");
 
     var title = titleInput.value.trim();
     var length = parseInt(lengthInput.value.trim());
     var genre = genreSelector.value.trim();
-
-    //movie list input
-    var moviesListElement = document.querySelector('.movie-list');
 
     //error input
     var MovieErrorElement = document.querySelector(".movie-error");
@@ -71,6 +70,10 @@ function createMovie() {
     var movieList = document.querySelector(".movie-list")
     movieList.appendChild(movieElement);
 
+    //create drop down for movie select in program
+    moviesSelectElement.value = 0;
+    moviesSelectElement.options[moviesSelectElement.options.length] = new Option(movie.name, movies.length - 1);
+
     titleInput.value = "";
     lengthInput.value = "";
     genreSelector.selectedIndex = 0;
@@ -84,23 +87,25 @@ function Program(date) {
 Program.prototype.getProgramDuration = function() {
     var programLength = 0;
 
-    listOfMovies.forEach(function(movie) {
+    this.listOfMovies.forEach(function (movie) {
         programLength += movie.length;
-        return parseInt(programLength);
     }, this);
+
+    return parseInt(programLength);
 }
 
-Program.prototype.addMovie = function() {
-    listOfMovies.push(movie);
-}
+Program.prototype.addMovie = function (movie) {
+    this.listOfMovies.push(movie);
+};
+
 
 Program.prototype.getData = function() {
     var date = new Date(this.date);
     var movies = this.listOfMovies;
     var programDuration = this.getProgramDuration();
-    var dateString = date.getDate() + "." + (data.getMonth() + 1) + "." + data.getFullYear();
+    var dateString = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 
-    if (!dataProgramDuration) {
+    if (!programDuration) {
         return dateString + ", program duration: TBA";
     }
     return dateString + ", " + movies.length + " movies, duration: " + programDuration + "min"
@@ -121,8 +126,8 @@ Program.prototype.gatAllData = function() {
 }
 
 function createProgram() {
-    dateElement = document.querySelector(".program-date");
-    programErrorElement = document.querySelector(".program-error");
+    var dateElement = document.querySelector(".program-date");
+    var programErrorElement = document.querySelector(".program-error");
     var programDate = dateElement.value;
 
     if (!programDate) {
@@ -132,6 +137,12 @@ function createProgram() {
     programErrorElement.textContent = "";
 
     var program = new Program(programDate);
+
+    festival.addProgram(program);
+
+    refreshMoviesAndProgramList()
+
+    dateElement.value = "";
 }
 
 function addMovieToProgram() {
@@ -173,14 +184,14 @@ function addMovieToProgram() {
     var programSelectElement = document.querySelector('.program-select');
     var programOptionElement = programSelectElement.options[programSelectElement.selectedIndex];
 
-    var errorElement = document.querySelector('.assign-error');
+    var errorElement = document.querySelector('.assign-error');    
 
     var movieIndex = movieOptionElement.value;
     var programIndex = programOptionElement.value;
 
     if (!movieIndex && !programIndex) {
         errorElement.textContent = "Select program and movie";
-        return;
+        return;        
     }
 
     errorElement.textContent = "";
@@ -202,7 +213,7 @@ function refreshMoviesAndProgramList() {
     var programListElement = document.querySelector('.program-list');
     var programSelectElement = document.querySelector('.program-select');
 
-    var programListHTML = "<ul>"
+ var programListHTML = "<ul>"
     var programSelectOptionsHTML = '<option value="">-</option>'
 
     var programList = festival.listOfPrograms;
@@ -250,7 +261,7 @@ Festival.prototype.getMoviesCount = function() {
  * Returns formated string with all festival information
  * @returns {string}
  */
-Festival.prototype.getData = function() {
+Festival.prototype.getData = function () {
     var festivalName = this.name;
     var programs = this.listOfPrograms;
     var totalMovieCount = this.getMoviesCount();
